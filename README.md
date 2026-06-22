@@ -164,9 +164,4 @@ docker compose down -v && docker compose up -d   # RESET total (recomeça do zer
 
 ---
 
-### Resumo de 1 minuto (para abrir o seminário)
-> “Subimos dois servidores PostgreSQL independentes com Docker. Usando o modelo
-> de publicação e subscrição, o pg1 publica as tabelas `clientes` e `produtos`,
-> que o pg2 assina e recebe; e o pg2 publica `avaliacoes`, que o pg1 recebe. A
-> tabela `pedidos` fica de fora da publicação para mostrar a replicação seletiva.
-> Por fim, testamos inserções e atualizações nos dois lados.”
+
