@@ -1,0 +1,5 @@
+# Garante que scripts shell e SQL usem sempre LF (quebra de linha Unix),
+# mesmo quando clonados no Windows. Sem isso, o CRLF pode quebrar os
+# scripts dentro dos conteineres (erro "bad interpreter").
+*.sh   text eol=lf
+*.sql  text eol=lf

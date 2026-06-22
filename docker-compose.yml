@@ -1,0 +1,101 @@
+services:
+  # ============================================================
+  # SERVIDOR 1 (pg1) — publica clientes e produtos; recebe avaliacoes
+  # ============================================================
+  pg1:
+    image: postgres:16
+    container_name: bd2_pg1
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      REPL_USER: ${REPL_USER}
+      REPL_PASSWORD: ${REPL_PASSWORD}
+    # wal_level=logical é o que habilita a replicação lógica
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+      - "-c"
+      - "listen_addresses=*"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
+    volumes:
+      - ./pg1/init:/docker-entrypoint-initdb.d
+      - pg1_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks: [bd2net]
+
+  # ============================================================
+  # SERVIDOR 2 (pg2) — publica avaliacoes; recebe clientes e produtos
+  # ============================================================
+  pg2:
+    image: postgres:16
+    container_name: bd2_pg2
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      REPL_USER: ${REPL_USER}
+      REPL_PASSWORD: ${REPL_PASSWORD}
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+      - "-c"
+      - "listen_addresses=*"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
+    volumes:
+      - ./pg2/init:/docker-entrypoint-initdb.d
+      - pg2_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks: [bd2net]
+
+  # ============================================================
+  # SETUP — cria as SUBSCRIPTIONS depois que os 2 servidores sobem
+  # (roda uma vez e encerra)
+  # ============================================================
+  setup:
+    image: postgres:16
+    container_name: bd2_setup
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      REPL_USER: ${REPL_USER}
+      REPL_PASSWORD: ${REPL_PASSWORD}
+    entrypoint: ["bash", "/setup-subscriptions.sh"]
+    volumes:
+      - ./setup/setup-subscriptions.sh:/setup-subscriptions.sh:ro
+    depends_on:
+      pg1:
+        condition: service_healthy
+      pg2:
+        condition: service_healthy
+    restart: "no"
+    networks: [bd2net]
+
+volumes:
+  pg1_data:
+  pg2_data:
+
+networks:
+  bd2net:
+    driver: bridge

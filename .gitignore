@@ -1,0 +1,26 @@
+# ============================================================
+#  Arquivos que NAO devem ir para o GitHub
+# ============================================================
+
+# Credenciais reais (cada um cria o seu a partir do .env.example)
+.env
+
+# Arquivos temporarios / gerados
+*.tmp
+*.temp
+*.log
+*.bak
+*.swp
+*~
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores / IDEs
+.vscode/
+.idea/
+
+# Dados locais do Claude Code
+.claude/
