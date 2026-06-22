@@ -19,7 +19,7 @@ Ele cobre os 4 requisitos do desafio:
 ```
         ┌──────────────────────────┐                ┌──────────────────────────┐
         │          pg1             │                │          pg2             │
-        │      (porta 5432)        │                │      (porta 5433)        │
+        │      (porta 15432)       │                │      (porta 15433)       │
         │                          │   pub_vendas   │                          │
         │  clientes  ────────────────────────────▶  clientes  (recebe)        │
         │  produtos  ────────────────────────────▶  produtos  (recebe)        │
@@ -58,7 +58,7 @@ Ele cobre os 4 requisitos do desafio:
 ## 3. Pré-requisitos
 
 - **Docker** e **Docker Compose** instalados.
-- Portas livres: **5432** e **5433**.
+- Portas livres: **15432** e **15433** (lado do host).
 
 ---
 
@@ -119,8 +119,13 @@ bash scripts/status.sh
 
 | Servidor | Host | Porta | Usuário | Senha | Banco |
 |----------|------|-------|---------|-------|-------|
-| pg1 | localhost | 5432 | admin | admin123 | bd2 |
-| pg2 | localhost | 5433 | admin | admin123 | bd2 |
+| pg1 | localhost | 15432 | admin | admin123 | bd2 |
+| pg2 | localhost | 15433 | admin | admin123 | bd2 |
+
+> **Por que 15432/15433 e não 5432/5433?** Para não conflitar com um PostgreSQL
+> instalado direto na máquina (que costuma ocupar a 5432). As portas internas
+> dos contêineres continuam 5432; só o lado do host foi remapeado. Os scripts de
+> demo usam `docker exec`, então não dependem dessas portas.
 
 ```bash
 docker exec -it bd2_pg1 psql -U admin -d bd2
